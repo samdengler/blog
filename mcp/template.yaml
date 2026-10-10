@@ -26,11 +26,24 @@ Resources:
       DefaultRouteSettings:
         ThrottlingBurstLimit: 20
         ThrottlingRateLimit: 10
-      Domain: !If
-        - HasDomain
-        - DomainName: !Ref DomainName
-          CertificateArn: !Ref CertificateArn
-        - !Ref AWS::NoValue
+
+  CustomDomain:
+    Type: AWS::ApiGatewayV2::DomainName
+    Condition: HasDomain
+    Properties:
+      DomainName: !Ref DomainName
+      DomainNameConfigurations:
+        - CertificateArn: !Ref CertificateArn
+          EndpointType: REGIONAL
+          SecurityPolicy: TLS_1_2
+
+  CustomDomainMapping:
+    Type: AWS::ApiGatewayV2::ApiMapping
+    Condition: HasDomain
+    Properties:
+      ApiId: !Ref Api
+      DomainName: !Ref CustomDomain
+      Stage: !Ref Api.Stage
 
   McpFunction:
     Type: AWS::Serverless::Function
@@ -63,4 +76,4 @@ Outputs:
   DnsTarget:
     Condition: HasDomain
     Description: Point a CNAME record for the custom domain at this name
-    Value: !GetAtt Api.DomainName.RegionalDomainName
+    Value: !GetAtt CustomDomain.RegionalDomainName
