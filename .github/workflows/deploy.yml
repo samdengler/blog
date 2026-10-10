@@ -28,6 +28,8 @@ jobs:
       - run: npm ci
       - name: Check generated files are current
         run: python3 tools/convert.py --check
+      - name: Test the MCP server
+        run: python3 -m unittest discover -s mcp/tests
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         if: github.event_name != 'pull_request'

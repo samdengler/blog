@@ -40,3 +40,7 @@ python3 tools/convert.py --check       # confirm generated files are current
 `site.json` holds the site URL and base path. Both the Docusaurus config and the converter read it.
 To move to a custom domain, change `url` and `baseUrl` there, add `static/CNAME`, and run
 `python3 tools/convert.py --regenerate`.
+
+## MCP server
+
+`mcp/` holds a small read-only MCP server that exposes the posts to AI tools. See `mcp/README.md`.
