@@ -1,0 +1,8 @@
+# Sam Dengler
+
+> Notes on agentic AI, identity, and event-driven systems
+
+Machine-readable index: https://samdengler.github.io/blog/posts.json
+
+## Posts
+
