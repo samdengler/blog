@@ -1,1 +1,7 @@
-{}
+{
+  "claude-docs-to-docusaurus": {
+    "doc": "https://claude.ai/code/artifact/8fbaf672-b470-45ad-80e8-d770df9b5888",
+    "rev": 1,
+    "source_sha256": "6c36f9a9f0f65a160202e83426cd1290c1ece78ad308850ed79adf47d147b743"
+  }
+}

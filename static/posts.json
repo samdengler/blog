@@ -1,5 +1,19 @@
 {
   "site": "https://samdengler.github.io/blog/",
   "title": "Sam Dengler",
-  "posts": []
+  "posts": [
+    {
+      "title": "Writing in Claude Docs, publishing with Docusaurus",
+      "slug": "claude-docs-to-docusaurus",
+      "date": "2026-10-10",
+      "tags": [
+        "claude",
+        "docusaurus",
+        "publishing"
+      ],
+      "summary": "How this blog goes from a Claude Doc to a static site through a Markdown export, a converter script, and a pull request.",
+      "url": "https://samdengler.github.io/blog/claude-docs-to-docusaurus/",
+      "markdown_url": "https://samdengler.github.io/blog/posts/claude-docs-to-docusaurus.md"
+    }
+  ]
 }
