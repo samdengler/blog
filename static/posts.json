@@ -3,6 +3,19 @@
   "title": "Sam Dengler",
   "posts": [
     {
+      "title": "Images and diagrams in a post",
+      "slug": "images-and-diagrams",
+      "date": "2026-10-10",
+      "tags": [
+        "claude",
+        "docusaurus",
+        "publishing"
+      ],
+      "summary": "A test that a screenshot and a drawn diagram carry over from a Claude Doc to the published site.",
+      "url": "https://samdengler.github.io/blog/images-and-diagrams/",
+      "markdown_url": "https://samdengler.github.io/blog/posts/images-and-diagrams.md"
+    },
+    {
       "title": "Writing in Claude Docs, publishing with Docusaurus",
       "slug": "claude-docs-to-docusaurus",
       "date": "2026-10-10",
