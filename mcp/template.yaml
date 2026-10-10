@@ -1,0 +1,79 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Read-only MCP tools over Sam Dengler's blog (list, search, and get posts).
+
+Parameters:
+  BlogBaseUrl:
+    Type: String
+    Default: https://samdengler.github.io/blog/
+    Description: Address of the blog. posts.json is read from here.
+  DomainName:
+    Type: String
+    Default: ''
+    Description: Optional custom domain for the endpoint, for example mcp.dengler.io.
+  CertificateArn:
+    Type: String
+    Default: ''
+    Description: ACM certificate for DomainName, in this region. Required when DomainName is set.
+
+Conditions:
+  HasDomain: !Not [!Equals [!Ref DomainName, '']]
+
+Resources:
+  Api:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 20
+        ThrottlingRateLimit: 10
+
+  CustomDomain:
+    Type: AWS::ApiGatewayV2::DomainName
+    Condition: HasDomain
+    Properties:
+      DomainName: !Ref DomainName
+      DomainNameConfigurations:
+        - CertificateArn: !Ref CertificateArn
+          EndpointType: REGIONAL
+          SecurityPolicy: TLS_1_2
+
+  CustomDomainMapping:
+    Type: AWS::ApiGatewayV2::ApiMapping
+    Condition: HasDomain
+    Properties:
+      ApiId: !Ref Api
+      DomainName: !Ref CustomDomain
+      Stage: !Ref Api.Stage
+
+  McpFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: lambda_function.handler
+      Runtime: python3.13
+      Architectures: [arm64]
+      MemorySize: 256
+      Timeout: 15
+      Environment:
+        Variables:
+          BLOG_BASE_URL: !Ref BlogBaseUrl
+      Events:
+        Mcp:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref Api
+            Path: /mcp
+            Method: ANY
+
+Outputs:
+  Endpoint:
+    Description: MCP endpoint on the default API address
+    Value: !Sub https://${Api}.execute-api.${AWS::Region}.amazonaws.com/mcp
+  CustomEndpoint:
+    Condition: HasDomain
+    Description: MCP endpoint on the custom domain
+    Value: !Sub https://${DomainName}/mcp
+  DnsTarget:
+    Condition: HasDomain
+    Description: Point a CNAME record for the custom domain at this name
+    Value: !GetAtt CustomDomain.RegionalDomainName
