@@ -1,5 +1,5 @@
 {
-  "site": "https://samdengler.github.io/blog/",
+  "site": "https://blog.dengler.io/",
   "title": "Sam Dengler",
   "posts": [
     {
@@ -12,8 +12,8 @@
         "publishing"
       ],
       "summary": "A test that a screenshot and a drawn diagram carry over from a Claude Doc to the published site.",
-      "url": "https://samdengler.github.io/blog/images-and-diagrams/",
-      "markdown_url": "https://samdengler.github.io/blog/posts/images-and-diagrams.md"
+      "url": "https://blog.dengler.io/images-and-diagrams/",
+      "markdown_url": "https://blog.dengler.io/posts/images-and-diagrams.md"
     },
     {
       "title": "Writing in Claude Docs, publishing with Docusaurus",
@@ -25,8 +25,8 @@
         "publishing"
       ],
       "summary": "How this blog goes from a Claude Doc to a static site through a Markdown export, a converter script, and a pull request.",
-      "url": "https://samdengler.github.io/blog/claude-docs-to-docusaurus/",
-      "markdown_url": "https://samdengler.github.io/blog/posts/claude-docs-to-docusaurus.md"
+      "url": "https://blog.dengler.io/claude-docs-to-docusaurus/",
+      "markdown_url": "https://blog.dengler.io/posts/claude-docs-to-docusaurus.md"
     }
   ]
 }

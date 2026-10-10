@@ -1,6 +1,6 @@
 # blog
 
-Source for https://samdengler.github.io/blog/.
+Source for https://blog.dengler.io/.
 
 Posts are written in Claude Docs and published here as Markdown. The files under `blog/`,
 `static/posts/`, and `static/img/posts/` are generated. Edit the Doc and publish again; do not edit them by hand.
@@ -39,5 +39,5 @@ python3 tools/convert.py --check       # confirm generated files are current
 ## Site address
 
 `site.json` holds the site URL and base path. Both the Docusaurus config and the converter read it.
-To move to a custom domain, change `url` and `baseUrl` there, add `static/CNAME`, and run
-`python3 tools/convert.py --regenerate`.
+After changing it, run `python3 tools/convert.py --regenerate`. The custom domain itself is set in
+the repo's Pages settings, with a DNS CNAME record pointing `blog.dengler.io` at `samdengler.github.io`.
