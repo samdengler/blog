@@ -2,15 +2,16 @@
 
 Source for https://samdengler.github.io/blog/.
 
-Posts are written in Claude Docs and published here as Markdown. The files under `blog/` and
-`static/posts/` are generated. Edit the Doc and publish again; do not edit them by hand.
+Posts are written in Claude Docs and published here as Markdown. The files under `blog/`,
+`static/posts/`, and `static/img/posts/` are generated. Edit the Doc and publish again; do not edit them by hand.
 
 ## Publishing flow
 
 1. Each post is one Claude Doc with a Post tab and a Research tab.
 2. The "Blog: 00 Index" Doc lists every post with its slug, date, tags, summary, and status.
 3. Posts marked Ready or Published are exported to Markdown.
-4. `tools/convert.py` adds front matter and writes `blog/<date>-<slug>.md`.
+4. `tools/convert.py` adds front matter and writes `blog/<date>-<slug>.md`. Images and
+   diagram screenshots from the Doc are written to `static/img/posts/<slug>/`.
 5. A pull request shows the diff. Merging it deploys the site through GitHub Actions.
 
 The steps Claude follows are in `tools/publish-blog/SKILL.md`.

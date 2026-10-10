@@ -9,7 +9,18 @@ Export dir layout (written by the publish skill, never by hand):
 
     index.md             Markdown export of the "Blog: 00 Index" Doc
     posts/<slug>.md      Markdown export of each post Doc's Post tab
+    media/<slug>/        optional: the post's images and diagrams, plus media.json
     meta.json            optional: {"<slug>": {"doc": "<Doc url>", "rev": <n>}}
+
+The Markdown export leaves a text placeholder where an image or a drawn diagram sat
+in the Doc. media.json lists the files that fill those placeholders, in the order
+they appear in the post:
+
+    [{"kind": "image", "file": "01.png"},
+     {"kind": "diagram", "file": "02.png", "alt": "what the diagram shows"}]
+
+Each file is copied to static/img/posts/<slug>/ and its placeholder becomes a
+Markdown image. "alt" is optional; the placeholder's own text is used without it.
 
 The Index table decides what is published. A row whose Status is Ready or
 Published is written to blog/<date>-<slug>.md. Every other row is skipped.
@@ -27,6 +38,7 @@ import hashlib
 import json
 import pathlib
 import re
+import shutil
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -41,6 +53,10 @@ LINK = re.compile(r"^\[(.*)\]\((\S+)\)$")
 # Leftover authoring markers. "[" is exported from Docs as "&#91;".
 MARKERS = re.compile(r"(?:\[|&#91;)\s*To (?:write|confirm)", re.I)
 TRUNCATE = "<!-- truncate -->"
+# What the Docs Markdown export writes where an image or a drawn diagram sat.
+PLACEHOLDER = re.compile(r"^(?:&#91;|\[)(image|embedded content): (.*?)\\?\]$", re.M)
+PLACEHOLDER_KIND = {"image": "image", "embedded content": "diagram"}
+IMAGES = STATIC / "img" / "posts"
 
 
 def split_row(line):
@@ -101,6 +117,53 @@ def with_truncate(body):
     return "\n\n".join([blocks[0], TRUNCATE] + blocks[1:])
 
 
+def trim(src, dst):
+    """Copy a diagram screenshot, cropping the empty margin around the drawing."""
+    try:
+        from PIL import Image, ImageChops
+    except ImportError:
+        shutil.copyfile(src, dst)
+        return
+    im = Image.open(src).convert("RGB")
+    box = ImageChops.difference(im, Image.new("RGB", im.size, im.getpixel((0, 0)))).getbbox()
+    if box:
+        pad = 32
+        im = im.crop((max(box[0] - pad, 0), max(box[1] - pad, 0),
+                      min(box[2] + pad, im.width), min(box[3] + pad, im.height)))
+    im.save(dst)
+
+
+def place_media(slug, body, export):
+    """Swap each export placeholder for a Markdown image. Returns (body, problems)."""
+    found = PLACEHOLDER.findall(body)
+    folder = export / "media" / slug
+    listing = folder / "media.json"
+    items = json.loads(listing.read_text()) if listing.exists() else []
+    dest = IMAGES / slug
+    if dest.exists():
+        shutil.rmtree(dest)
+    if len(found) != len(items):
+        return body, [f"the post has {len(found)} image or diagram placeholder(s) "
+                      f"but media/{slug}/media.json lists {len(items)} file(s)"]
+    problems, links = [], []
+    for n, ((kind, text), item) in enumerate(zip(found, items), 1):
+        src = folder / item.get("file", "")
+        if PLACEHOLDER_KIND[kind] != item.get("kind"):
+            problems.append(f"item {n} is {PLACEHOLDER_KIND[kind]} in the post but {item.get('kind')!r} in media.json")
+        elif not src.is_file():
+            problems.append(f"media file not found: media/{slug}/{item.get('file')}")
+        else:
+            dest.mkdir(parents=True, exist_ok=True)
+            name = f"{n:02d}{src.suffix.lower()}"
+            (trim if item["kind"] == "diagram" else shutil.copyfile)(src, dest / name)
+            alt = (item.get("alt") or text).replace("[", "(").replace("]", ")")
+            links.append(f"![{alt}](/img/posts/{slug}/{name})")
+    if problems:
+        return body, problems
+    links.reverse()
+    return PLACEHOLDER.sub(lambda m: links.pop(), body), []
+
+
 def front_matter(meta):
     out = ["---"]
     for key in ("title", "date", "slug", "description"):
@@ -157,8 +220,8 @@ def convert(export):
         body = post_body(raw)
         if MARKERS.search(body):
             errors.append(f"{title}: still contains a [To write] or [To confirm] marker")
-        if re.search(r"\]\(blob/", body):
-            errors.append(f"{title}: contains an image stored in the Doc, which this converter cannot export yet")
+        body, media_problems = place_media(slug, body, export)
+        errors += [f"{title}: {p}" for p in media_problems]
         if not body.strip():
             errors.append(f"{title}: the Post tab is empty")
         meta = {"title": title, "date": date, "slug": slug, "description": row["summary"], "tags": tags}
@@ -194,7 +257,9 @@ def generated():
     files = {}
     for path in sorted(BLOG.glob("*.md")):
         meta, body = read_post(path)
-        files[STATIC / "posts" / f"{meta['slug']}.md"] = f"# {meta['title']}\n\n{body}"
+        # Raw copies are read outside the site, so image links must be absolute.
+        files[STATIC / "posts" / f"{meta['slug']}.md"] = (
+            f"# {meta['title']}\n\n" + body.replace("](/img/", f"]({base}img/"))
         posts.append({
             "title": meta["title"],
             "slug": meta["slug"],
