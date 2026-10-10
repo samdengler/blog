@@ -25,6 +25,10 @@ Markdown image. "alt" is optional; the placeholder's own text is used without it
 The Index table decides what is published. A row whose Status is Ready or
 Published is written to blog/<date>-<slug>.md. Every other row is skipped.
 
+Posts are listed newest first.  tools/published.json records when each post was first
+published, and the front matter date carries that time of day so posts that share a date
+still sort in publish order.
+
 Generated from blog/*.md on every run, for machine readers:
 
     static/posts.json        one entry per post
@@ -193,6 +197,7 @@ def convert(export):
     source = json.loads(meta_path.read_text()) if meta_path.exists() else {}
     published = json.loads(PUBLISHED.read_text()) if PUBLISHED.exists() else {}
     errors, written, skipped = [], [], []
+    now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     for row in rows:
         link = LINK.match(row["post"])
@@ -224,7 +229,10 @@ def convert(export):
         errors += [f"{title}: {p}" for p in media_problems]
         if not body.strip():
             errors.append(f"{title}: the Post tab is empty")
-        meta = {"title": title, "date": date, "slug": slug, "description": row["summary"], "tags": tags}
+        # Keep the first publish time across revisions so same-day posts sort newest first.
+        published_at = published.get(slug, {}).get("published_at") or now
+        stamp = f"{date}T{published_at[11:19]}"  # Docusaurus reads this as UTC
+        meta = {"title": title, "date": stamp, "slug": slug, "description": row["summary"], "tags": tags}
         for old in BLOG.glob(f"*-{slug}.md"):
             if old.name != f"{date}-{slug}.md":
                 old.unlink()  # the publish date changed
@@ -235,6 +243,7 @@ def convert(export):
             "doc": (link.group(2) if link else None) or source.get(slug, {}).get("doc"),
             "rev": source.get(slug, {}).get("rev"),
             "source_sha256": hashlib.sha256(raw.encode("utf-8")).hexdigest(),
+            "published_at": published_at,
         }
 
     if errors:
@@ -263,13 +272,16 @@ def generated():
         posts.append({
             "title": meta["title"],
             "slug": meta["slug"],
-            "date": meta["date"],
+            "date": meta["date"][:10],
+            "published": meta["date"],
             "tags": meta["tags"],
             "summary": meta["description"],
             "url": f"{base}{meta['slug']}/",
             "markdown_url": f"{base}posts/{meta['slug']}.md",
         })
-    posts.sort(key=lambda p: (p["date"], p["slug"]), reverse=True)
+    posts.sort(key=lambda p: (p["published"], p["slug"]), reverse=True)
+    for p in posts:
+        del p["published"]
     files[STATIC / "posts.json"] = json.dumps(
         {"site": base, "title": site["title"], "posts": posts}, indent=2, ensure_ascii=False) + "\n"
     lines = [f"# {site['title']}", "", f"> {site['tagline']}", "",
