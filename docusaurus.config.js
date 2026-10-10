@@ -37,6 +37,8 @@ const config = {
           blogDescription: site.tagline,
           blogSidebarTitle: 'Posts',
           blogSidebarCount: 'ALL',
+          // The home page is a one-line-per-post index, so it lists every post on one page.
+          postsPerPage: 'ALL',
           showReadingTime: true,
           feedOptions: {type: ['rss', 'atom'], xslt: true},
           onInlineTags: 'ignore',

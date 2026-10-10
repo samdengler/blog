@@ -1,6 +1,6 @@
 ---
 title: "Images and diagrams in a post"
-date: "2026-10-10"
+date: "2026-10-10T16:24:58"
 slug: "images-and-diagrams"
 description: "A test that a screenshot and a drawn diagram carry over from a Claude Doc to the published site."
 tags: ["claude", "docusaurus", "publishing"]

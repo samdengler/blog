@@ -1,0 +1,63 @@
+.index {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+  width: 100%;
+}
+
+.year + .year {
+  margin-top: 2.5rem;
+}
+
+.yearLabel {
+  margin: 0 0 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 1.25rem;
+  padding: 0.875rem 0;
+  margin: 0;
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.date {
+  flex: 0 0 4rem;
+  font-size: 0.875rem;
+  color: var(--ifm-color-emphasis-700);
+  font-variant-numeric: tabular-nums;
+}
+
+.title {
+  flex: 1 1 22rem;
+  min-width: 0;
+  font-size: 1.0625rem;
+  font-weight: 600;
+}
+
+.tags {
+  font-size: 0.8125rem;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.tag {
+  color: inherit;
+}
+
+.tag:hover {
+  color: var(--ifm-color-primary);
+}

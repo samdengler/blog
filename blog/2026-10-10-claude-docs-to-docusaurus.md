@@ -1,6 +1,6 @@
 ---
 title: "Writing in Claude Docs, publishing with Docusaurus"
-date: "2026-10-10"
+date: "2026-10-10T15:58:17"
 slug: "claude-docs-to-docusaurus"
 description: "How this blog goes from a Claude Doc to a static site through a Markdown export, a converter script, and a pull request."
 tags: ["claude", "docusaurus", "publishing"]
